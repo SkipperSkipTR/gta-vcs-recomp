@@ -1113,3 +1113,34 @@ Issue 62 (0.2.0, still in 0.2.1): `UnicodeEncodeError: 'charmap' codec can't enc
 named with "꞉". The launcher sets `PYTHONIOENCODING` / `PYTHONUTF8`, but runs the tools with `-I`, and isolated mode
 ignores every PYTHON* variable: stdout to the launcher's pipe was cp1252. `toolchain` now sets stdout / stderr to UTF-8
 (errors replaced) itself; `report.py` reads `doctor.py`'s output as UTF-8.
+
+## 2026-11-05 - The keyboard: PC actions as in Vice City / San Andreas on PC (the user's request)
+
+The user asked for the PC games' control scheme (CPad / CControllerConfigManager: an action per key, by situation)
+instead of a key per PS2 button. Keyboard > **Control scheme** is now **PC (Vice City / San Andreas)** by default:
+actions on foot, in a vehicle, on foot and in vehicles, and in the game's menus (paused, no player yet, or the player's
+controls held by the game - cutscenes, shops), each pressing the PS2 button VCS's default controller setup gives that
+action (the game's own key names, game-internals.md 12a). The same key can do one thing on foot and another in a car (W
+walks / accelerates, Shift sprints / honks, Q / E change weapons / look left and right), as in the PC games; the settings
+menu keeps keys exclusive per situation (a group can be a list, `settings::Spec::group`). Default keys are Vice City's
+(`InitDefaultControlConfiguration`, 0x6197A0 in gta-vc.exe), with San Andreas' Q / E for the weapons (0x530640 in
+gta_sa.exe 1.0): Vice City's keypad Enter / Delete are not separate keys here (Keypad Enter is Enter). Escape is the
+pause menu, fixed as in the PC games (it can't be a binding: it cancels one in the menu). A key held from a menu into
+play (Enter choosing Resume) does nothing on the other side until let go.
+
+The old scheme stays as **PS2 buttons** (its bindings on the PS2 keys page, unchanged); the gamepad is the same with
+either. The test tools drive the game with the PS2-button keys (Shift is Cross in the menus, Return is Start), so
+`toolchain.test_keys` sets `VCS_KEYS=0` for test runs and `run.py --control`; `VCS_KEYS=1` tests the PC scheme.
+
+Then (the user's request): **Walk** is on Alt, as in San Andreas (Alt + Enter stays the full-screen switch: Enter does
+not enter a car while walking, F does). **Secondary fire** (right mouse button) presses R1, VCS's second vehicle weapon
+(C0VEWE2: the Hunter's cannon; its rockets and the fire engine's water are VEWEP, Circle - primary Fire). R1 is also
+the handbrake, so in a car it brakes: that is the game's own layout, not ours to split.
+
+And VCS's unarmed combat (the user's request): locked on with the fists, Cross is a heavy attack, Square blocks while
+held and Triangle grabs (UCBT_01..03, game-internals.md 12a) - on the PC scheme's keys those were Shift (sprint), Space
+(jump) and F (enter vehicle). A **Fighting** situation (on foot, weapon slot 0, the target button held - its keys or the
+gamepad's R1) has its own keys: Heavy attack Space / mouse 4, Block Shift / mouse 5, Grab F; light attack stays Fire.
+Its keys win over the other bindings of the same keys meanwhile, so they may share keys with anything (group "fight").
+The help says "when you are unarmed"; whether melee weapons grab / block too is not checked, so they keep the on-foot
+keys.

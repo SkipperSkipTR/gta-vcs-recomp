@@ -82,12 +82,34 @@ namespace ui
         // keys, a group of their own, may share the on-foot keys but not the menu keys). False (with the reason in
         // g_refusal) when refused.
         std::string g_refusal;
+
+        // Two groups clash when they share a name: a group may be a list ("foot,car": keys that work both on foot and
+        // in a vehicle clash with each).
+        bool sameGroup(const std::string &a, const std::string &b)
+        {
+            auto names = [](const std::string &g) {
+                std::vector<std::string> out;
+                for (size_t at = 0; at <= g.size();)
+                {
+                    const size_t comma = std::min(g.find(',', at), g.size());
+                    out.push_back(g.substr(at, comma - at));
+                    at = comma + 1;
+                }
+                return out;
+            };
+            const std::vector<std::string> nb = names(b);
+            for (const std::string &n : names(a))
+                if (std::find(nb.begin(), nb.end(), n) != nb.end())
+                    return true;
+            return false;
+        }
+
         bool bindKey(const settings::Spec &s, int key)
         {
             if (key != 0 && !s.group.empty())
                 for (const settings::Spec &o : settings::all())
                     if (&o != &s && o.type == settings::Type::Key && !o.group.empty() &&
-                        (o.group == s.group || !o.optional || !s.optional) && settings::value(o.key) == key)
+                        (sameGroup(o.group, s.group) || !o.optional || !s.optional) && settings::value(o.key) == key)
                     {
                         if (!o.optional || !s.optional) // a menu key never takes a control's key, nor gives its own
                         {
