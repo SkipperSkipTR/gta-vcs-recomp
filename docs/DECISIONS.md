@@ -1144,3 +1144,9 @@ gamepad's R1) has its own keys: Heavy attack Space / mouse 4, Block Shift / mous
 Its keys win over the other bindings of the same keys meanwhile, so they may share keys with anything (group "fight").
 The help says "when you are unarmed"; whether melee weapons grab / block too is not checked, so they keep the on-foot
 keys.
+
+And (the user's request) a key can do several actions: Keyboard > **Share keys between actions** (`controls.share_keys`,
+on) - binding a key no longer takes it from the other controls of its group, and the menu names them ("Space also
+does: ..."). The pad read already presses every control whose key is down. The fighting keys still win over the
+on-foot keys while fighting, and the PS2 scheme's driving keys over its others while driving: those overrides are
+the situations, not exclusivity. Off is the old behaviour.

@@ -75,8 +75,10 @@ the player exists (title screen, intro movies) and while the game holds the play
 the play keys do nothing. A key held from a menu into play (Enter choosing Resume) does nothing on the other side until
 let go.
 
-The settings menu keeps a key to one action per situation: binding a key another action of the same situation has
-takes it from that one (an on-foot key and a vehicle key may share it; one of "Both" may share with neither).
+A key can do several actions: with Keyboard > **Share keys between actions** (on by default) binding a key leaves it on
+the other actions that have it, and the menu says what else it does (in blue under the list); all of them happen
+together. Off, binding a key takes it from the other action of the same situation (an on-foot key and a vehicle key
+share it either way). The menu keys (F2, F5, F6, F8) never share.
 
 ## PS2 scheme
 

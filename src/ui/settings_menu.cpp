@@ -104,8 +104,13 @@ namespace ui
             return false;
         }
 
+        // With Keyboard > Share keys between actions (controls.share_keys) a control's key stays with the other controls of
+        // its group that have it - the key then does all of them - and g_shared names them.
+        std::string g_shared;
         bool bindKey(const settings::Spec &s, int key)
         {
+            const bool share = settings::value("controls.share_keys") != 0;
+            std::string shared;
             if (key != 0 && !s.group.empty())
                 for (const settings::Spec &o : settings::all())
                     if (&o != &s && o.type == settings::Type::Key && !o.group.empty() &&
@@ -116,9 +121,21 @@ namespace ui
                             g_refusal = std::string(keyName(key)) + " is already \"" + o.label + "\" (" + o.page + ").";
                             return false;
                         }
-                        settings::set(o.key, 0);
+                        if (o.partner.empty() && o.hidden) // a second slot: named by its row's label
+                            for (const settings::Spec &row : settings::all())
+                                if (row.partner == o.key)
+                                {
+                                    if (&row != &s)
+                                        shared += (shared.empty() ? "" : ", ") + row.label + " (" + row.section + ")";
+                                    break;
+                                }
+                        if (!o.hidden && o.partner != s.key) // not this action's own other slot
+                            shared += (shared.empty() ? "" : ", ") + o.label + " (" + o.section + ")";
+                        if (!share)
+                            settings::set(o.key, 0);
                     }
             g_refusal.clear();
+            g_shared = share && !shared.empty() ? std::string(keyName(key)) + " also does: " + shared + "." : "";
             return settings::set(s.key, key);
         }
 
@@ -143,6 +160,7 @@ namespace ui
             g_capturing.clear();
             g_confirming.clear();
             g_refusal.clear();
+            g_shared.clear();
             g_helpKey.clear();
             g_navFocused.clear();
             ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad;
@@ -223,6 +241,7 @@ namespace ui
                 g_capturing = s.key;
                 g_captureArmed = false;
                 g_refusal.clear();
+                g_shared.clear();
             }
             if (s.optional && ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
                 settings::set(s.key, 0);
@@ -528,6 +547,8 @@ namespace ui
                 ImGui::PushTextWrapPos(0.0f);
                 if (!g_refusal.empty())
                     ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "Not changed: %s", g_refusal.c_str());
+                else if (!g_shared.empty())
+                    ImGui::TextColored(ImVec4(0.55f, 0.85f, 1.0f, 1.0f), "%s", g_shared.c_str());
                 else if (helpSpec)
                 {
                     const std::string text = helpText(*helpSpec);

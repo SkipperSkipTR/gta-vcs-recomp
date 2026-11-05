@@ -888,6 +888,18 @@ namespace vcs::input
         s.onChange = onChange;
         settings::add(s);
 
+        s = {};
+        s.key = "controls.share_keys";
+        s.page = kKeys;
+        s.section = "Control scheme";
+        s.label = "Share keys between actions";
+        s.help = "On: a key can do several actions at once - binding it to one leaves it on the others, and the menu says "
+                 "what else it does. Off: binding a key takes it from the other action of the same situation. Keys that "
+                 "work in different situations (on foot / in a vehicle) can share either way.";
+        s.type = Type::Toggle;
+        s.defaultValue = 1;
+        settings::add(s);
+
         for (const Control &c : kControls)
         {
             if (std::string(c.id) == "pc_pause")
