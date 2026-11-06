@@ -24,7 +24,7 @@ Keypad Enter is Enter here). Every action has two slots on the Keyboard page.
 
 | Action | Keys | PS2 |
 |---|---|---|
-| Forward / backward / left / right | W S A D | Left stick |
+| Forward / backward / left / right (also in the scopes) | W S A D, arrow keys | Left stick |
 | Walk (hold) | Alt (as in San Andreas; Alt + Enter stays full screen, so walk to a car and press F) | small stick tilt |
 | Sprint / swim faster | Shift | Cross |
 | Jump / climb | Space | Square |
@@ -54,9 +54,9 @@ Next / previous target (] / [, and Q / E: L2 / R2 change the target while locked
 
 | Action | Keys | PS2 |
 |---|---|---|
-| Accelerate | W | Cross |
-| Brake / reverse | S | Square |
-| Steer left / right | A / D | Left stick |
+| Accelerate | W, Up | Cross |
+| Brake / reverse | S, Down | Square |
+| Steer left / right | A / D, Left / Right | Left stick |
 | Lean forward / back (bikes; aircraft nose) | Keypad 8 / Keypad 5 | Left stick up / down |
 | Handbrake (also the Hunter's cannon) | Space | R1 |
 | Fire (drive-by, the Hunter's rockets, the fire engine's water, other vehicle weapons) | left mouse button, Ctrl | Circle |
@@ -65,12 +65,14 @@ Next / previous target (] / [, and Q / E: L2 / R2 change the target while locked
 | Next radio station | R, Insert | L1 |
 | Look left / right (helicopters: turn) | Q / E | L2 / R2 |
 | Look behind | middle mouse button, Keypad 1 | L2 + R2 |
+| Forklift: forks up / down | Page Up / Page Down | D-pad up / down |
 
 **Both**: Enter / exit vehicle F, Enter (Triangle); Change camera view V, Home (Select); Sub-missions / activity (site
 attacks, buying sites, recruiting) Caps Lock, Keypad + (R3); camera I J K L (right stick).
 
 **Menus and pause**: Pause menu Escape (fixed) and P (Start); Menu select / skip Enter, Space (Cross); Menu back
-Backspace, F (Triangle); the arrow keys are the D-pad everywhere. The menu keys apply while the game is paused, before
+Backspace, F (Triangle); the arrow keys are the D-pad in the menus (while playing they move, as in Vice City; the
+D-pad while playing has rows of its own under "Both", unbound). The menu keys apply while the game is paused, before
 the player exists (title screen, intro movies) and while the game holds the player's controls (cutscenes, shops); then
 the play keys do nothing. A key held from a menu into play (Enter choosing Resume) does nothing on the other side until
 let go.

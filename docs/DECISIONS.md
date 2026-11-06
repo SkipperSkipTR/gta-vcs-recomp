@@ -1162,3 +1162,9 @@ situations it works in (`pcGroup`), and two clash when the lists meet. The situa
 actions do nothing (`AffectControllerStateOn_ButtonDown`: first person or third, never both); movement, Fire and Target
 work in both. The menu names what lost the key (the PC games don't). The fighting keys stay a group of their own (VCS's
 addition, no PC counterpart): they win over the on-foot keys while fighting.
+
+Then the defaults the rule allows (the user's request): the arrow keys move on foot and drive (Up / Down accelerate and
+brake, Left / Right steer), Vice City's own defaults, as the second slots of those actions; in the menus they are still
+the D-pad. VCS uses the D-pad while playing only for the forklift's forks (C0FLUP / C0FLDN, Phil's mission): Forklift
+forks up / down, Page Up / Page Down - the sniper zoom's keys, which only work in a scope. The D-pad while playing keeps
+rows of its own, unbound; the shops' cursor (C0AMMOV) is the left stick or the D-pad, so the arrows still work there.

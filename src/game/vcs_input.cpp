@@ -92,10 +92,10 @@ namespace vcs::input
         // weapons from San Andreas', 0x530640 in gta_sa.exe 1.0). docs/CONTROLS.md, game-internals.md 12a.
         constexpr const char *kPS2Group = "keys", *kPS2DriveGroup = "drive";
         const Control kControls[] = {
-            {"pc_forward", "Forward", "On foot", Target::Stick, 0, 1, -1, KEY_W, 0, kPadNone, kOnFootAny, kSchemePC, nullptr},
-            {"pc_backward", "Backward", "On foot", Target::Stick, 0, 1, 1, KEY_S, 0, kPadNone, kOnFootAny, kSchemePC, nullptr},
-            {"pc_left", "Left", "On foot", Target::Stick, 0, 0, -1, KEY_A, 0, kPadNone, kOnFootAny, kSchemePC, nullptr},
-            {"pc_right", "Right", "On foot", Target::Stick, 0, 0, 1, KEY_D, 0, kPadNone, kOnFootAny, kSchemePC, nullptr},
+            {"pc_forward", "Forward", "On foot", Target::Stick, 0, 1, -1, KEY_W, KEY_UP, kPadNone, kOnFootAny, kSchemePC, nullptr},
+            {"pc_backward", "Backward", "On foot", Target::Stick, 0, 1, 1, KEY_S, KEY_DOWN, kPadNone, kOnFootAny, kSchemePC, nullptr},
+            {"pc_left", "Left", "On foot", Target::Stick, 0, 0, -1, KEY_A, KEY_LEFT, kPadNone, kOnFootAny, kSchemePC, nullptr},
+            {"pc_right", "Right", "On foot", Target::Stick, 0, 0, 1, KEY_D, KEY_RIGHT, kPadNone, kOnFootAny, kSchemePC, nullptr},
             {"pc_walk", "Walk (hold)", "On foot", Target::Walk, 0, 0, 0, KEY_LEFT_ALT, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
             {"pc_sprint", "Sprint / swim faster", "On foot", Target::Button, kCross, 0, 0, KEY_LEFT_SHIFT, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
             {"pc_jump", "Jump / climb", "On foot", Target::Button, kSquare, 0, 0, KEY_SPACE, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
@@ -118,10 +118,10 @@ namespace vcs::input
             {"pc_block", "Block (hold)", "Fighting (unarmed, Target held)", Target::Button, kSquare, 0, 0, KEY_LEFT_SHIFT, KEY_MOUSE_X2, kPadNone, kInFight, kSchemePC, nullptr},
             {"pc_grab", "Grab", "Fighting (unarmed, Target held)", Target::Button, kTriangle, 0, 0, KEY_F, 0, kPadNone, kInFight, kSchemePC, nullptr},
 
-            {"pc_accelerate", "Accelerate", "In a vehicle", Target::Button, kCross, 0, 0, KEY_W, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
-            {"pc_brake", "Brake / reverse", "In a vehicle", Target::Button, kSquare, 0, 0, KEY_S, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
-            {"pc_steer_left", "Steer left", "In a vehicle", Target::Stick, 0, 0, -1, KEY_A, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
-            {"pc_steer_right", "Steer right", "In a vehicle", Target::Stick, 0, 0, 1, KEY_D, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_accelerate", "Accelerate", "In a vehicle", Target::Button, kCross, 0, 0, KEY_W, KEY_UP, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_brake", "Brake / reverse", "In a vehicle", Target::Button, kSquare, 0, 0, KEY_S, KEY_DOWN, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_steer_left", "Steer left", "In a vehicle", Target::Stick, 0, 0, -1, KEY_A, KEY_LEFT, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_steer_right", "Steer right", "In a vehicle", Target::Stick, 0, 0, 1, KEY_D, KEY_RIGHT, kPadNone, kInVehicle, kSchemePC, nullptr},
             {"pc_lean_forward", "Lean forward / nose down", "In a vehicle", Target::Stick, 0, 1, -1, KEY_KP_8, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
             {"pc_lean_back", "Lean back / nose up", "In a vehicle", Target::Stick, 0, 1, 1, KEY_KP_5, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
             {"pc_handbrake", "Handbrake", "In a vehicle", Target::Button, kR1, 0, 0, KEY_SPACE, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
@@ -133,6 +133,9 @@ namespace vcs::input
             {"pc_radio", "Next radio station", "In a vehicle", Target::Button, kL1, 0, 0, KEY_R, KEY_INSERT, kPadNone, kInVehicle, kSchemePC, nullptr},
             {"pc_look_left", "Look left", "In a vehicle", Target::Button, kL2, 0, 0, KEY_Q, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
             {"pc_look_right", "Look right", "In a vehicle", Target::Button, kR2, 0, 0, KEY_E, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            // the D-pad's use in a vehicle (C0FLUP / C0FLDN: the forklift's forks, Phil's mission)
+            {"pc_forks_up", "Forklift: forks up", "In a vehicle", Target::Button, kUp, 0, 0, KEY_PAGE_UP, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_forks_down", "Forklift: forks down", "In a vehicle", Target::Button, kDown, 0, 0, KEY_PAGE_DOWN, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
             {"pc_look_behind_car", "Look behind", "In a vehicle", Target::Button, kL2 | kR2, 0, 0, KEY_MOUSE_MIDDLE, KEY_KP_1, kPadNone, kInVehicle, kSchemePC, nullptr},
 
             {"pc_enter_exit", "Enter / exit vehicle", "Both", Target::Button, kTriangle, 0, 0, KEY_F, KEY_ENTER, kPadNone, kPlaying, kSchemePC, nullptr},
@@ -146,10 +149,16 @@ namespace vcs::input
             {"pc_pause", "Pause menu (Escape too)", "Menus and pause", Target::Button, kStart, 0, 0, KEY_P, 0, kPadNone, kAlways, kSchemePC, nullptr},
             {"pc_menu_select", "Menu: select / skip", "Menus and pause", Target::Button, kCross, 0, 0, KEY_ENTER, KEY_SPACE, kPadNone, kInMenu, kSchemePC, nullptr},
             {"pc_menu_back", "Menu: back", "Menus and pause", Target::Button, kTriangle, 0, 0, KEY_BACKSPACE, KEY_F, kPadNone, kInMenu, kSchemePC, nullptr},
-            {"pc_dpad_up", "Up (D-pad)", "Menus and pause", Target::Button, kUp, 0, 0, KEY_UP, 0, kPadNone, kAlways, kSchemePC, nullptr},
-            {"pc_dpad_down", "Down (D-pad)", "Menus and pause", Target::Button, kDown, 0, 0, KEY_DOWN, 0, kPadNone, kAlways, kSchemePC, nullptr},
-            {"pc_dpad_left", "Left (D-pad)", "Menus and pause", Target::Button, kLeft, 0, 0, KEY_LEFT, 0, kPadNone, kAlways, kSchemePC, nullptr},
-            {"pc_dpad_right", "Right (D-pad)", "Menus and pause", Target::Button, kRight, 0, 0, KEY_RIGHT, 0, kPadNone, kAlways, kSchemePC, nullptr},
+            // the arrows are the D-pad in the menus; while playing they move (Vice City's defaults), and the D-pad there
+            // (VCS uses it little: the forklift above) has keys of its own when bound
+            {"pc_dpad_up", "Menu: up (D-pad)", "Menus and pause", Target::Button, kUp, 0, 0, KEY_UP, 0, kPadNone, kInMenu, kSchemePC, nullptr},
+            {"pc_dpad_down", "Menu: down (D-pad)", "Menus and pause", Target::Button, kDown, 0, 0, KEY_DOWN, 0, kPadNone, kInMenu, kSchemePC, nullptr},
+            {"pc_dpad_left", "Menu: left (D-pad)", "Menus and pause", Target::Button, kLeft, 0, 0, KEY_LEFT, 0, kPadNone, kInMenu, kSchemePC, nullptr},
+            {"pc_dpad_right", "Menu: right (D-pad)", "Menus and pause", Target::Button, kRight, 0, 0, KEY_RIGHT, 0, kPadNone, kInMenu, kSchemePC, nullptr},
+            {"pc_play_dpad_up", "D-pad up", "Both", Target::Button, kUp, 0, 0, 0, 0, kPadNone, kCommon, kSchemePC, nullptr},
+            {"pc_play_dpad_down", "D-pad down", "Both", Target::Button, kDown, 0, 0, 0, 0, kPadNone, kCommon, kSchemePC, nullptr},
+            {"pc_play_dpad_left", "D-pad left", "Both", Target::Button, kLeft, 0, 0, 0, 0, kPadNone, kCommon, kSchemePC, nullptr},
+            {"pc_play_dpad_right", "D-pad right", "Both", Target::Button, kRight, 0, 0, 0, 0, kPadNone, kCommon, kSchemePC, nullptr},
 
             // the PS2 scheme: a key per PS2 button, its rows the Gamepad page's too
             {"move_up", "Move forward", "Movement", Target::Stick, 0, 1, -1, KEY_W, 0, kPadNone, kAlways, kSchemePS2, kPS2Group},
