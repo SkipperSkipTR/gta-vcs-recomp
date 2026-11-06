@@ -49,12 +49,15 @@ namespace vcs::input
             Walk,   // left stick held at walking speed
         };
 
-        // When a control's keys work (Control::when): on foot, in a vehicle (the player drives), in the game's menus
+        // When a control's keys work (Control::when): on foot (third person), in a first-person weapon view (the scopes,
+        // the rocket launcher, the M16, the camera, binoculars), in a vehicle (the player drives), in the game's menus
         // (the pause menu, the title screen, and while the game holds the player's controls: cutscenes, shops), and
-        // on foot in a zooming scope, and fighting (on foot, unarmed, the target button held: locked on to a ped or
-        // ready to).
+        // fighting (on foot, unarmed, the target button held: locked on to a ped or ready to). The PC games' action
+        // types (CControllerConfigManager::GetActionType, 0x6167A0 in gta-vc.exe): third person, first person, both
+        // (kOnFootAny), vehicle, vehicle and third person (kPlaying), common (kCommon).
         constexpr uint8_t kOnFoot = 1, kInVehicle = 2, kInMenu = 4, kInScope = 8, kInFight = 16;
-        constexpr uint8_t kPlaying = kOnFoot | kInVehicle, kAlways = kOnFoot | kInVehicle | kInMenu;
+        constexpr uint8_t kOnFootAny = kOnFoot | kInScope, kPlaying = kOnFoot | kInVehicle,
+                          kCommon = kOnFoot | kInScope | kInVehicle, kAlways = kCommon | kInMenu;
 
         // The keyboard's two schemes (Keyboard > Control scheme): PC actions as in the PC Vice City / San Andreas
         // (CControllerConfigManager: an action per key, by situation), or a key per PS2 button.
@@ -76,7 +79,8 @@ namespace vcs::input
             int pad;              // default gamepad source (the PS2 scheme's buttons: the Gamepad page)
             uint8_t when;         // kOnFoot...: when its keys work
             Scheme scheme;
-            const char *group;    // the settings menu keeps keys exclusive within a group (settings::Spec::group)
+            const char *group;    // PS2 scheme: the settings menu keeps keys exclusive within a group (settings::Spec::group);
+                                  // the PC scheme's come from `when` (pcGroup)
         };
 
         using namespace platform;
@@ -86,67 +90,66 @@ namespace vcs::input
         // C0SNZO zoom Square / Cross, C0CVEIW camera Select, C0PDCTL targets L2 / R2) and default keys from the PC games
         // (Vice City's CControllerConfigManager::InitDefaultControlConfiguration, 0x6197A0 in gta-vc.exe; Q / E for the
         // weapons from San Andreas', 0x530640 in gta_sa.exe 1.0). docs/CONTROLS.md, game-internals.md 12a.
-        constexpr const char *kFightGroup = "fight", *kFootGroup = "foot", *kCarGroup = "car", *kMenuGroup = "menu", *kPlayGroup = "foot,car",
-                             *kAllGroup = "foot,car,menu", *kPS2Group = "keys", *kPS2DriveGroup = "drive";
+        constexpr const char *kPS2Group = "keys", *kPS2DriveGroup = "drive";
         const Control kControls[] = {
-            {"pc_forward", "Forward", "On foot", Target::Stick, 0, 1, -1, KEY_W, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_backward", "Backward", "On foot", Target::Stick, 0, 1, 1, KEY_S, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_left", "Left", "On foot", Target::Stick, 0, 0, -1, KEY_A, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_right", "Right", "On foot", Target::Stick, 0, 0, 1, KEY_D, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_walk", "Walk (hold)", "On foot", Target::Walk, 0, 0, 0, KEY_LEFT_ALT, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_sprint", "Sprint / swim faster", "On foot", Target::Button, kCross, 0, 0, KEY_LEFT_SHIFT, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_jump", "Jump / climb", "On foot", Target::Button, kSquare, 0, 0, KEY_SPACE, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_crouch", "Crouch", "On foot", Target::Button, kL3, 0, 0, KEY_C, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_fire", "Fire / attack", "On foot", Target::Button, kCircle, 0, 0, KEY_MOUSE_LEFT, KEY_LEFT_CONTROL, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_target", "Target / lock on", "On foot", Target::Button, kR1, 0, 0, KEY_MOUSE_RIGHT, KEY_DELETE, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_next_weapon", "Next weapon", "On foot", Target::Button, kR2, 0, 0, KEY_E, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_prev_weapon", "Previous weapon", "On foot", Target::Button, kL2, 0, 0, KEY_Q, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_next_target", "Next target", "On foot", Target::Button, kR2, 0, 0, KEY_RIGHT_BRACKET, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_prev_target", "Previous target", "On foot", Target::Button, kL2, 0, 0, KEY_LEFT_BRACKET, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_action", "Action (pick up, answer phone)", "On foot", Target::Button, kL1, 0, 0, KEY_TAB, 0, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_look_behind", "Look behind", "On foot", Target::Button, kR3, 0, 0, KEY_MOUSE_MIDDLE, KEY_KP_1, kPadNone, kOnFoot, kSchemePC, kFootGroup},
-            {"pc_zoom_in", "Sniper zoom in", "On foot", Target::Button, kSquare, 0, 0, KEY_PAGE_UP, KEY_Z, kPadNone, kInScope, kSchemePC, kFootGroup},
-            {"pc_zoom_out", "Sniper zoom out", "On foot", Target::Button, kCross, 0, 0, KEY_PAGE_DOWN, KEY_X, kPadNone, kInScope, kSchemePC, kFootGroup},
+            {"pc_forward", "Forward", "On foot", Target::Stick, 0, 1, -1, KEY_W, 0, kPadNone, kOnFootAny, kSchemePC, nullptr},
+            {"pc_backward", "Backward", "On foot", Target::Stick, 0, 1, 1, KEY_S, 0, kPadNone, kOnFootAny, kSchemePC, nullptr},
+            {"pc_left", "Left", "On foot", Target::Stick, 0, 0, -1, KEY_A, 0, kPadNone, kOnFootAny, kSchemePC, nullptr},
+            {"pc_right", "Right", "On foot", Target::Stick, 0, 0, 1, KEY_D, 0, kPadNone, kOnFootAny, kSchemePC, nullptr},
+            {"pc_walk", "Walk (hold)", "On foot", Target::Walk, 0, 0, 0, KEY_LEFT_ALT, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
+            {"pc_sprint", "Sprint / swim faster", "On foot", Target::Button, kCross, 0, 0, KEY_LEFT_SHIFT, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
+            {"pc_jump", "Jump / climb", "On foot", Target::Button, kSquare, 0, 0, KEY_SPACE, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
+            {"pc_crouch", "Crouch", "On foot", Target::Button, kL3, 0, 0, KEY_C, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
+            {"pc_fire", "Fire / attack", "On foot", Target::Button, kCircle, 0, 0, KEY_MOUSE_LEFT, KEY_LEFT_CONTROL, kPadNone, kOnFootAny, kSchemePC, nullptr},
+            {"pc_target", "Target / lock on", "On foot", Target::Button, kR1, 0, 0, KEY_MOUSE_RIGHT, KEY_DELETE, kPadNone, kOnFootAny, kSchemePC, nullptr},
+            {"pc_next_weapon", "Next weapon", "On foot", Target::Button, kR2, 0, 0, KEY_E, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
+            {"pc_prev_weapon", "Previous weapon", "On foot", Target::Button, kL2, 0, 0, KEY_Q, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
+            {"pc_next_target", "Next target", "On foot", Target::Button, kR2, 0, 0, KEY_RIGHT_BRACKET, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
+            {"pc_prev_target", "Previous target", "On foot", Target::Button, kL2, 0, 0, KEY_LEFT_BRACKET, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
+            {"pc_action", "Action (pick up, answer phone)", "On foot", Target::Button, kL1, 0, 0, KEY_TAB, 0, kPadNone, kOnFoot, kSchemePC, nullptr},
+            {"pc_look_behind", "Look behind", "On foot", Target::Button, kR3, 0, 0, KEY_MOUSE_MIDDLE, KEY_KP_1, kPadNone, kOnFoot, kSchemePC, nullptr},
+            {"pc_zoom_in", "Sniper zoom in", "On foot", Target::Button, kSquare, 0, 0, KEY_PAGE_UP, KEY_Z, kPadNone, kInScope, kSchemePC, nullptr},
+            {"pc_zoom_out", "Sniper zoom out", "On foot", Target::Button, kCross, 0, 0, KEY_PAGE_DOWN, KEY_X, kPadNone, kInScope, kSchemePC, nullptr},
 
             // VCS's unarmed combat, locked on (UCBT_01..03; C0PUNA Circle the light attack - Fire above -, C0PUHA Cross
             // the heavy one, C0PUBL Square blocks while held, C0PUGR Triangle grabs). These keys win over the on-foot
             // ones meanwhile: Space kicks rather than jumps.
-            {"pc_heavy_attack", "Heavy attack", "Fighting (unarmed, Target held)", Target::Button, kCross, 0, 0, KEY_SPACE, KEY_MOUSE_X1, kPadNone, kInFight, kSchemePC, kFightGroup},
-            {"pc_block", "Block (hold)", "Fighting (unarmed, Target held)", Target::Button, kSquare, 0, 0, KEY_LEFT_SHIFT, KEY_MOUSE_X2, kPadNone, kInFight, kSchemePC, kFightGroup},
-            {"pc_grab", "Grab", "Fighting (unarmed, Target held)", Target::Button, kTriangle, 0, 0, KEY_F, 0, kPadNone, kInFight, kSchemePC, kFightGroup},
+            {"pc_heavy_attack", "Heavy attack", "Fighting (unarmed, Target held)", Target::Button, kCross, 0, 0, KEY_SPACE, KEY_MOUSE_X1, kPadNone, kInFight, kSchemePC, nullptr},
+            {"pc_block", "Block (hold)", "Fighting (unarmed, Target held)", Target::Button, kSquare, 0, 0, KEY_LEFT_SHIFT, KEY_MOUSE_X2, kPadNone, kInFight, kSchemePC, nullptr},
+            {"pc_grab", "Grab", "Fighting (unarmed, Target held)", Target::Button, kTriangle, 0, 0, KEY_F, 0, kPadNone, kInFight, kSchemePC, nullptr},
 
-            {"pc_accelerate", "Accelerate", "In a vehicle", Target::Button, kCross, 0, 0, KEY_W, 0, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_brake", "Brake / reverse", "In a vehicle", Target::Button, kSquare, 0, 0, KEY_S, 0, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_steer_left", "Steer left", "In a vehicle", Target::Stick, 0, 0, -1, KEY_A, 0, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_steer_right", "Steer right", "In a vehicle", Target::Stick, 0, 0, 1, KEY_D, 0, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_lean_forward", "Lean forward / nose down", "In a vehicle", Target::Stick, 0, 1, -1, KEY_KP_8, 0, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_lean_back", "Lean back / nose up", "In a vehicle", Target::Stick, 0, 1, 1, KEY_KP_5, 0, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_handbrake", "Handbrake", "In a vehicle", Target::Button, kR1, 0, 0, KEY_SPACE, 0, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_vehicle_fire", "Fire (drive-by, rockets, water cannon)", "In a vehicle", Target::Button, kCircle, 0, 0, KEY_MOUSE_LEFT, KEY_LEFT_CONTROL, kPadNone, kInVehicle, kSchemePC, kCarGroup},
+            {"pc_accelerate", "Accelerate", "In a vehicle", Target::Button, kCross, 0, 0, KEY_W, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_brake", "Brake / reverse", "In a vehicle", Target::Button, kSquare, 0, 0, KEY_S, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_steer_left", "Steer left", "In a vehicle", Target::Stick, 0, 0, -1, KEY_A, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_steer_right", "Steer right", "In a vehicle", Target::Stick, 0, 0, 1, KEY_D, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_lean_forward", "Lean forward / nose down", "In a vehicle", Target::Stick, 0, 1, -1, KEY_KP_8, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_lean_back", "Lean back / nose up", "In a vehicle", Target::Stick, 0, 1, 1, KEY_KP_5, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_handbrake", "Handbrake", "In a vehicle", Target::Button, kR1, 0, 0, KEY_SPACE, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_vehicle_fire", "Fire (drive-by, rockets, water cannon)", "In a vehicle", Target::Button, kCircle, 0, 0, KEY_MOUSE_LEFT, KEY_LEFT_CONTROL, kPadNone, kInVehicle, kSchemePC, nullptr},
             // the game's second vehicle weapon is R1 (C0VEWE2: the Hunter's cannon; its rockets and the fire engine's
             // water are Circle, Fire above) - the handbrake's button, so in a car it is the handbrake too
-            {"pc_vehicle_fire_alt", "Secondary fire (Hunter's cannon)", "In a vehicle", Target::Button, kR1, 0, 0, KEY_MOUSE_RIGHT, 0, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_horn", "Horn / siren", "In a vehicle", Target::Button, kL3, 0, 0, KEY_LEFT_SHIFT, KEY_H, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_radio", "Next radio station", "In a vehicle", Target::Button, kL1, 0, 0, KEY_R, KEY_INSERT, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_look_left", "Look left", "In a vehicle", Target::Button, kL2, 0, 0, KEY_Q, 0, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_look_right", "Look right", "In a vehicle", Target::Button, kR2, 0, 0, KEY_E, 0, kPadNone, kInVehicle, kSchemePC, kCarGroup},
-            {"pc_look_behind_car", "Look behind", "In a vehicle", Target::Button, kL2 | kR2, 0, 0, KEY_MOUSE_MIDDLE, KEY_KP_1, kPadNone, kInVehicle, kSchemePC, kCarGroup},
+            {"pc_vehicle_fire_alt", "Secondary fire (Hunter's cannon)", "In a vehicle", Target::Button, kR1, 0, 0, KEY_MOUSE_RIGHT, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_horn", "Horn / siren", "In a vehicle", Target::Button, kL3, 0, 0, KEY_LEFT_SHIFT, KEY_H, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_radio", "Next radio station", "In a vehicle", Target::Button, kL1, 0, 0, KEY_R, KEY_INSERT, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_look_left", "Look left", "In a vehicle", Target::Button, kL2, 0, 0, KEY_Q, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_look_right", "Look right", "In a vehicle", Target::Button, kR2, 0, 0, KEY_E, 0, kPadNone, kInVehicle, kSchemePC, nullptr},
+            {"pc_look_behind_car", "Look behind", "In a vehicle", Target::Button, kL2 | kR2, 0, 0, KEY_MOUSE_MIDDLE, KEY_KP_1, kPadNone, kInVehicle, kSchemePC, nullptr},
 
-            {"pc_enter_exit", "Enter / exit vehicle", "Both", Target::Button, kTriangle, 0, 0, KEY_F, KEY_ENTER, kPadNone, kPlaying, kSchemePC, kPlayGroup},
-            {"pc_camera_view", "Change camera view", "Both", Target::Button, kSelect, 0, 0, KEY_V, KEY_HOME, kPadNone, kPlaying, kSchemePC, kPlayGroup},
-            {"pc_submission", "Sub-missions / activity", "Both", Target::Button, kR3, 0, 0, KEY_CAPS_LOCK, KEY_KP_ADD, kPadNone, kPlaying, kSchemePC, kPlayGroup},
-            {"pc_cam_up", "Camera up (right stick)", "Both", Target::Stick, 0, 3, -1, KEY_I, 0, kPadNone, kPlaying, kSchemePC, kPlayGroup},
-            {"pc_cam_down", "Camera down", "Both", Target::Stick, 0, 3, 1, KEY_K, 0, kPadNone, kPlaying, kSchemePC, kPlayGroup},
-            {"pc_cam_left", "Camera left", "Both", Target::Stick, 0, 2, -1, KEY_J, 0, kPadNone, kPlaying, kSchemePC, kPlayGroup},
-            {"pc_cam_right", "Camera right", "Both", Target::Stick, 0, 2, 1, KEY_L, 0, kPadNone, kPlaying, kSchemePC, kPlayGroup},
+            {"pc_enter_exit", "Enter / exit vehicle", "Both", Target::Button, kTriangle, 0, 0, KEY_F, KEY_ENTER, kPadNone, kPlaying, kSchemePC, nullptr},
+            {"pc_camera_view", "Change camera view", "Both", Target::Button, kSelect, 0, 0, KEY_V, KEY_HOME, kPadNone, kCommon, kSchemePC, nullptr},
+            {"pc_submission", "Sub-missions / activity", "Both", Target::Button, kR3, 0, 0, KEY_CAPS_LOCK, KEY_KP_ADD, kPadNone, kPlaying, kSchemePC, nullptr},
+            {"pc_cam_up", "Camera up (right stick)", "Both", Target::Stick, 0, 3, -1, KEY_I, 0, kPadNone, kCommon, kSchemePC, nullptr},
+            {"pc_cam_down", "Camera down", "Both", Target::Stick, 0, 3, 1, KEY_K, 0, kPadNone, kCommon, kSchemePC, nullptr},
+            {"pc_cam_left", "Camera left", "Both", Target::Stick, 0, 2, -1, KEY_J, 0, kPadNone, kCommon, kSchemePC, nullptr},
+            {"pc_cam_right", "Camera right", "Both", Target::Stick, 0, 2, 1, KEY_L, 0, kPadNone, kCommon, kSchemePC, nullptr},
 
-            {"pc_pause", "Pause menu (Escape too)", "Menus and pause", Target::Button, kStart, 0, 0, KEY_P, 0, kPadNone, kAlways, kSchemePC, kAllGroup},
-            {"pc_menu_select", "Menu: select / skip", "Menus and pause", Target::Button, kCross, 0, 0, KEY_ENTER, KEY_SPACE, kPadNone, kInMenu, kSchemePC, kMenuGroup},
-            {"pc_menu_back", "Menu: back", "Menus and pause", Target::Button, kTriangle, 0, 0, KEY_BACKSPACE, KEY_F, kPadNone, kInMenu, kSchemePC, kMenuGroup},
-            {"pc_dpad_up", "Up (D-pad)", "Menus and pause", Target::Button, kUp, 0, 0, KEY_UP, 0, kPadNone, kAlways, kSchemePC, kAllGroup},
-            {"pc_dpad_down", "Down (D-pad)", "Menus and pause", Target::Button, kDown, 0, 0, KEY_DOWN, 0, kPadNone, kAlways, kSchemePC, kAllGroup},
-            {"pc_dpad_left", "Left (D-pad)", "Menus and pause", Target::Button, kLeft, 0, 0, KEY_LEFT, 0, kPadNone, kAlways, kSchemePC, kAllGroup},
-            {"pc_dpad_right", "Right (D-pad)", "Menus and pause", Target::Button, kRight, 0, 0, KEY_RIGHT, 0, kPadNone, kAlways, kSchemePC, kAllGroup},
+            {"pc_pause", "Pause menu (Escape too)", "Menus and pause", Target::Button, kStart, 0, 0, KEY_P, 0, kPadNone, kAlways, kSchemePC, nullptr},
+            {"pc_menu_select", "Menu: select / skip", "Menus and pause", Target::Button, kCross, 0, 0, KEY_ENTER, KEY_SPACE, kPadNone, kInMenu, kSchemePC, nullptr},
+            {"pc_menu_back", "Menu: back", "Menus and pause", Target::Button, kTriangle, 0, 0, KEY_BACKSPACE, KEY_F, kPadNone, kInMenu, kSchemePC, nullptr},
+            {"pc_dpad_up", "Up (D-pad)", "Menus and pause", Target::Button, kUp, 0, 0, KEY_UP, 0, kPadNone, kAlways, kSchemePC, nullptr},
+            {"pc_dpad_down", "Down (D-pad)", "Menus and pause", Target::Button, kDown, 0, 0, KEY_DOWN, 0, kPadNone, kAlways, kSchemePC, nullptr},
+            {"pc_dpad_left", "Left (D-pad)", "Menus and pause", Target::Button, kLeft, 0, 0, KEY_LEFT, 0, kPadNone, kAlways, kSchemePC, nullptr},
+            {"pc_dpad_right", "Right (D-pad)", "Menus and pause", Target::Button, kRight, 0, 0, KEY_RIGHT, 0, kPadNone, kAlways, kSchemePC, nullptr},
 
             // the PS2 scheme: a key per PS2 button, its rows the Gamepad page's too
             {"move_up", "Move forward", "Movement", Target::Stick, 0, 1, -1, KEY_W, 0, kPadNone, kAlways, kSchemePS2, kPS2Group},
@@ -188,6 +191,23 @@ namespace vcs::input
         bool vehicleOnly(const Control &c) { return c.when == kInVehicle; }
         // The Gamepad page's rows: the PS2 scheme's buttons.
         bool gamepadRow(const Control &c) { return c.scheme == kSchemePS2 && c.target == Target::Button && !vehicleOnly(c); }
+
+        // The PC scheme's settings group: the situations its keys work in. Two actions clash when they can work at the
+        // same moment, so binding a key takes it from those and leaves it on the others, as the PC games' Controls menu
+        // does (CControllerConfigManager::DeleteMatchingActionInitiators, 0x616870 in gta-vc.exe, 0x531C90 in gta_sa.exe:
+        // a third-person action's key leaves the vehicle and first-person actions alone). The fighting keys are a group
+        // of their own: while fighting they win over the on-foot keys they share.
+        std::string pcGroup(uint8_t when)
+        {
+            if (when == kInFight)
+                return "fight";
+            std::string g;
+            const std::pair<uint8_t, const char *> names[] = {{kOnFoot, "foot"}, {kInScope, "scope"}, {kInVehicle, "car"}, {kInMenu, "menu"}};
+            for (const auto &[bit, name] : names)
+                if (when & bit)
+                    g += (g.empty() ? "" : ",") + std::string(name);
+            return g;
+        }
 
         const char *buttonName(uint16_t mask)
         {
@@ -515,8 +535,8 @@ namespace vcs::input
                 situation = kInMenu;
             else if (game.driving)
                 situation = kInVehicle;
-            else
-                situation = kOnFoot | (zoomMode(game.mode) ? kInScope : 0);
+            else // in a first-person weapon view the third-person actions do nothing, as in the PC games
+                situation = scopeMode(game.mode) ? kInScope : kOnFoot;
             auto fightKey = [&](int key) {
                 for (size_t i = 0; i < kControlCount; ++i)
                     if (kControls[i].scheme == m.scheme && kControls[i].when == kInFight && key > 0 &&
@@ -888,18 +908,6 @@ namespace vcs::input
         s.onChange = onChange;
         settings::add(s);
 
-        s = {};
-        s.key = "controls.share_keys";
-        s.page = kKeys;
-        s.section = "Control scheme";
-        s.label = "Share keys between actions";
-        s.help = "On: a key can do several actions at once - binding it to one leaves it on the others, and the menu says "
-                 "what else it does. Off: binding a key takes it from the other action of the same situation. Keys that "
-                 "work in different situations (on foot / in a vehicle) can share either way.";
-        s.type = Type::Toggle;
-        s.defaultValue = 1;
-        settings::add(s);
-
         for (const Control &c : kControls)
         {
             if (std::string(c.id) == "pc_pause")
@@ -1013,8 +1021,12 @@ namespace vcs::input
                                          : c.target == Target::Stick ? std::string("The PS2's ") + (c.axis < 2 ? "left" : "right") +
                                                                            " stick in this direction."
                                                                      : std::string("Presses the PS2's ") + buttonName(c.mask) + ".";
-                const char *when = c.when == kOnFoot     ? " On foot; in a vehicle its key can do something else."
-                                   : c.when == kInScope  ? " In the sniper scope, the camera and binoculars."
+                const char *when = c.when == kOnFoot     ? " On foot (not in a scope); in a vehicle or a scope its key can "
+                                                            "do something else."
+                                   : c.when == kOnFootAny ? " On foot and in the scopes; in a vehicle its key can do something else."
+                                   : c.when == kCommon    ? " On foot, in the scopes and in vehicles."
+                                   : c.when == kInScope  ? " In the sniper scope, the camera and binoculars; on foot its key "
+                                                           "can do something else."
                                    : c.when == kInFight  ? " Unarmed, while Target / lock on is held; then its key does "
                                                            "nothing else (Space kicks, not jumps)."
                                    : c.when == kInVehicle ? " In a vehicle; on foot its key can do something else."
@@ -1040,7 +1052,7 @@ namespace vcs::input
             // keys are exclusive within a group, and groups that share a situation share a name (settings::Spec::group):
             // the on-foot and vehicle keys may share keys, the PS2 scheme's driving keys its other ones, and the two
             // schemes each other's
-            s.group = c.group;
+            s.group = c.scheme == kSchemePC ? pcGroup(c.when) : c.group;
             s.partner = keyId(c, 1);
             s.defaultValue = c.key1;
             s.onChange = onChange;

@@ -75,10 +75,14 @@ the player exists (title screen, intro movies) and while the game holds the play
 the play keys do nothing. A key held from a menu into play (Enter choosing Resume) does nothing on the other side until
 let go.
 
-A key can do several actions: with Keyboard > **Share keys between actions** (on by default) binding a key leaves it on
-the other actions that have it, and the menu says what else it does (in blue under the list); all of them happen
-together. Off, binding a key takes it from the other action of the same situation (an on-foot key and a vehicle key
-share it either way). The menu keys (F2, F5, F6, F8) never share.
+A key can do several actions as long as they never work at the same moment, as in the PC games' Controls menu: W is
+Forward on foot and Accelerate in a vehicle, Z is a sniper zoom in a scope and could be Jump on foot. Binding a key
+takes it from the actions that work at the same time as this one (the menu says which, in blue under the list) and
+leaves it on the others. The situations: on foot, in a scope (first-person weapon views: the sniper rifles, rocket
+launcher, M16, camera, binoculars - there the on-foot-only actions do nothing, as on PC), in a vehicle, in the menus.
+Forward / back / left / right, Fire and Target work on foot and in scopes; Change camera view and the camera keys
+everywhere but the menus. The fighting keys may share with the on-foot keys (they win while fighting). The menu keys
+(F2, F5, F6, F8) never share.
 
 ## PS2 scheme
 

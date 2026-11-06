@@ -104,13 +104,13 @@ namespace ui
             return false;
         }
 
-        // With Keyboard > Share keys between actions (controls.share_keys) a control's key stays with the other controls of
-        // its group that have it - the key then does all of them - and g_shared names them.
+        // As the PC games' Controls menu (DeleteMatchingActionInitiators): the controls that clash with `s` (a group they
+        // share: keys that work at the same moment) lose the key, the others keep it - a key does one thing per
+        // situation. The PC games say nothing; g_shared names what lost it.
         std::string g_shared;
         bool bindKey(const settings::Spec &s, int key)
         {
-            const bool share = settings::value("controls.share_keys") != 0;
-            std::string shared;
+            std::string taken;
             if (key != 0 && !s.group.empty())
                 for (const settings::Spec &o : settings::all())
                     if (&o != &s && o.type == settings::Type::Key && !o.group.empty() &&
@@ -126,16 +126,15 @@ namespace ui
                                 if (row.partner == o.key)
                                 {
                                     if (&row != &s)
-                                        shared += (shared.empty() ? "" : ", ") + row.label + " (" + row.section + ")";
+                                        taken += (taken.empty() ? "" : ", ") + row.label + " (" + row.section + ")";
                                     break;
                                 }
                         if (!o.hidden && o.partner != s.key) // not this action's own other slot
-                            shared += (shared.empty() ? "" : ", ") + o.label + " (" + o.section + ")";
-                        if (!share)
-                            settings::set(o.key, 0);
+                            taken += (taken.empty() ? "" : ", ") + o.label + " (" + o.section + ")";
+                        settings::set(o.key, 0);
                     }
             g_refusal.clear();
-            g_shared = share && !shared.empty() ? std::string(keyName(key)) + " also does: " + shared + "." : "";
+            g_shared = taken.empty() ? "" : std::string(keyName(key)) + " taken from: " + taken + ".";
             return settings::set(s.key, key);
         }
 

@@ -1150,3 +1150,15 @@ on) - binding a key no longer takes it from the other controls of its group, and
 does: ..."). The pad read already presses every control whose key is down. The fighting keys still win over the
 on-foot keys while fighting, and the PS2 scheme's driving keys over its others while driving: those overrides are
 the situations, not exclusivity. Off is the old behaviour.
+
+2026-11-06 (the user's request: work as the PC games do): Share keys between actions is gone. Vice City's and San
+Andreas' Controls menus (CMenuManager's key capture, 0x4903D0 in gta-vc.exe, 0x57DB20 in gta_sa.exe) clear the
+action's slot, then `DeleteMatchingActionInitiators` (0x616870 / 0x531C90) silently clears the key from every action
+whose type can be active together with this one's (`GetActionType`, 0x6167A0: common, third person, first person,
+first + third, vehicle, vehicle + third), then bind it. So a key does one thing per situation, and sharing across
+situations is the design (W: forward / accelerate). Our groups now say the same: each PC action's group is the list of
+situations it works in (`pcGroup`), and two clash when the lists meet. The situations follow the PC types: first person
+(the weapon views, `scopeMode`) is its own - zoom keys may share with on-foot-only keys, and in a scope the on-foot-only
+actions do nothing (`AffectControllerStateOn_ButtonDown`: first person or third, never both); movement, Fire and Target
+work in both. The menu names what lost the key (the PC games don't). The fighting keys stay a group of their own (VCS's
+addition, no PC counterpart): they win over the on-foot keys while fighting.
